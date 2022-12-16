@@ -14,10 +14,10 @@ from pathlib import Path
 import os
 import dj_database_url
 
-DB_NAME = os.environ.get('DATABASE_NAME')
-DB_USER = os.environ.get('DATABASE_USERNAME')
-DB_PASSWORD = os.environ.get('DATABASE_PASSWORD')
-DB_HOST = os.environ.get('DATABASE_HOST')
+DB_NAME = os.environ.get('DB_USER')
+DB_USER = os.environ.get('DB_NAME')
+DB_PASSWORD = os.environ.get('DB_PASSWORD')
+DB_HOST = os.environ.get('DB_HOST')
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

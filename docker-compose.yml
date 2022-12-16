@@ -13,8 +13,13 @@ services:
   web:
     environment:
       - DJANGO_DEBUG=1
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
     restart: always
-    build: ./octServer
+    build: .
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./:/code
