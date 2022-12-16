@@ -1,0 +1,17 @@
+{% if request.user.is_authenticated and request.user.first_name %}
+{% include 'navbar.html' %}
+
+<main>
+  <div style="text-align:center">
+    <h1>Выберите аккаунт</h1>
+    {% for k, v in json_object %}
+        <form action="{% url 'acc' %}"><input type="submit" class="btn btn-primary my-2" name="num_acc" value="{{ k }}"></form>
+        <br>
+    {% endfor %}
+  </div>
+</main>
+
+{% endif %}
+
+
+

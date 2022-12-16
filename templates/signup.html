@@ -1,0 +1,13 @@
+{% load crispy_forms_tags %}
+{% if not form.is_valid %}
+<h1>Create a new account</h1>
+<form method="post">
+    {% csrf_token %}
+    <p>{{ form | crispy }}</p>
+    <button type="submit" name="button">SignUp</button>
+</form>
+{% else %}
+<h1>Your account has been created and ready to use!</h1>
+<a href="{% url 'start' %}">Go to home</a>
+{% endif %}
+<a href="{% url 'start' %}">Back to start page</a>

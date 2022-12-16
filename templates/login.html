@@ -1,0 +1,10 @@
+<div style="text-align:center; margin-top:50px">
+{% load crispy_forms_tags %}
+<h1>Registered Users Only</h1>
+<form method="post">
+    {% csrf_token %}
+    <p>{{ form | crispy }}</p>
+    <button type="submit">Log in</button>
+</form>
+    <a href="{% url 'start' %}">Back to start page</a>
+</div>
