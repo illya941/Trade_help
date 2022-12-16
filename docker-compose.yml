@@ -10,6 +10,9 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - postgresql:/var/lib/postgresql/data
+    container_name: db
+    networks:
+      - djangonetwork
   web:
     environment:
       - DJANGO_DEBUG=1
@@ -27,5 +30,12 @@ services:
       - "8000:8000"
     depends_on:
       - db
+    links:
+      - db:db
+    networks:
+      - djangonetwork
 volumes:
   postgresql:
+networks:
+  djangonetwork:
+      driver: bridge
