@@ -59,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+CSRF_TRUSTED_ORIGINS = ['http://67.205.131.91']
 ROOT_URLCONF = 'helptrade.urls'
 
 # TEMPLATES = [
