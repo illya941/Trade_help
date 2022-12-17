@@ -109,6 +109,7 @@ def signUpView(request):
             }
             with open(f'{username}.json', 'w') as f:
                 json.dump(json_object, f, default=str)
+            return redirect('start')
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
