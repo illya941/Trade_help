@@ -5,6 +5,7 @@
   <div style="text-align:center">
     <h1>Выберите аккаунт</h1>
     {% for k, v in json_object %}
+        <span style="color:red">{{v.name_acc}}</span>, закуп: {{v.purchase}}
         <form action="{% url 'acc' %}"><input type="submit" class="btn btn-primary my-2" name="num_acc" value="{{ k }}"></form>
         <br>
     {% endfor %}
