@@ -35,6 +35,11 @@ urlpatterns = [
     path('purchase/', views.purchase, name="purchase"),
     path('acc/', views.one_ac, name="acc"),
     path('online', views.online, name="online"),
+    path('invent', views.invent, name="invent"),
+    path('order_buy', views.order_buy, name="order_buy"),
+    path('trade_request_give_p2p', views.trade_request_give_p2p, name="trade_request_give_p2p"),
+    path('mass_order', views.mass_order, name="mass_order"),
+    path('one_cent', views.one_cent, name="one_cent"),
 
     #path('set_prices/', views.set_prices, name="set_prices"),
     #path('set_prices_res1/', views.set_prices_res1, name="set_prices_res1"),

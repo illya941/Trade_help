@@ -33,6 +33,341 @@ def online(request):
     return render(request, 'online.html', {'result': data})
 
 
+def invent(request):
+    res = open(f'sokrat.json', 'r', encoding="utf-8")
+    response = res.read()
+    json_object = json.loads(response)
+    acc_key = request.GET['key']
+
+    data = {"res": "key != key"}
+
+    for key, value in json_object.items():
+        for val in value:
+            if acc_key == val:
+                url = 'https://market.csgo.com/api/v2/update-inventory/?key=' + acc_key
+                response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                data = response.json()
+    return render(request, 'invent.html', {'result': data})
+
+
+def trade_request_give_p2p(request):
+    res = open(f'sokrat.json', 'r', encoding="utf-8")
+    response = res.read()
+    json_object = json.loads(response)
+    acc_key = request.GET['key']
+
+    data = {"res": "key != key"}
+
+    for key, value in json_object.items():
+        for val in value:
+            if acc_key == val:
+                url = 'https://market.csgo.com/api/v2/trade-request-give-p2p?key=' + acc_key
+                response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                data = response.json()
+    return render(request, 'trade_request_give_p2p.html', {'result': data})
+
+
+def one_cent(request):
+    res = open(f'sokrat.json', 'r', encoding="utf-8")
+    response = res.read()
+    json_object = json.loads(response)
+    acc_key = request.GET['key']
+    acc_skin_name = request.GET['skin_name']
+    min_price = int(request.GET['min_price'])
+    max_price = int(request.GET['max_price'])
+    cur = 'RUB'
+
+    data = {"res": "key != key"}
+
+    for key, value in json_object.items():
+        for val in value:
+            if acc_key == val:
+                try:
+                    # получаем список с ценой предмета на сайте по возрастанию
+                    url = 'https://market.csgo.com/api/v2/search-item-by-hash-name?key=' + acc_key + '&hash_name=' + acc_skin_name
+                    response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                    data = response.json()
+
+                    price = {}
+                    g = {}
+                    for i in range(len(data['data'])):
+                        g[data['data'][i]['price']] = i
+                        price[i] = data['data'][i]['price']
+
+                    list_price = sorted(list(g.keys()))
+                    print(list_price)
+
+                    list_price1 = sorted(list(price.values()))
+                    # print(list_price1)
+
+                    count = 0
+                    for l in range(len(list_price1)):
+                        if list_price1[0] == list_price1[l]:
+                            count += 1
+
+                    # получаю item_id, цену выставленных на продажу
+                    url = 'https://market.csgo.com/api/v2/items?key=' + acc_key
+                    response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                    data = response.json()
+
+                    r = 0
+                    if data['items'] != None:
+                        for i in range(len(data['items'])):
+                            if data['items'][i]['market_hash_name'] == acc_skin_name:
+                                item_id = data['items'][i]['item_id']
+                                # time.sleep(8)
+                                if type(data['items'][i]['price']) == float:
+                                    my_price = str(data['items'][i]['price']).replace('.', '')
+                                    my_price = int(my_price)
+                                else:
+                                    my_price = data['items'][i]['price'] * 100
+                                if len(list_price) >= 2:
+                                    if my_price == list_price[0] and list_price[0] >= min_price and count == 1 and list_price[0] < max_price:
+                                        r += 1
+                                        res1 = int(list_price[1]) - 1
+                                        print(res1)
+                                        try:
+                                            url = f'https://market.csgo.com/api/v2/set-price?key={acc_key}&item_id={item_id}&price={res1}&cur={cur}'
+                                            response = requests.get(url, timeout=10)
+                                            data = response.json()
+                                            break
+                                        except:
+                                            break
+                                    elif my_price == list_price[0] and list_price[0] >= min_price and count > 1 and list_price[
+                                        0] < max_price:
+                                        r += 1
+                                        res1 = int(list_price[0]) - 1
+                                        print(res1)
+                                        try:
+                                            url = f'https://market.csgo.com/api/v2/set-price?key={acc_key}&item_id={item_id}&price={res1}&cur={cur}'
+                                            response = requests.get(url, timeout=10)
+                                            data = response.json()
+                                            break
+                                        except:
+                                            break
+                                if len(list_price) >= 1:
+                                    if list_price[0] >= min_price and my_price != list_price[0] and list_price[0] < max_price:
+                                        res1 = int(list_price[0]) - 1
+                                        print(res1)
+                                        r += 1
+                                        try:
+                                            url = f'https://market.csgo.com/api/v2/set-price?key={acc_key}&item_id={item_id}&price={res1}&cur={cur}'
+                                            response = requests.get(url, timeout=10)
+                                            data = response.json()
+                                            break
+                                        except:
+                                            break
+                                if len(list_price) >= 2:
+                                    for n in range(1, len(list_price)):
+                                        if len(list_price) >= n + 1:
+                                            if list_price[n] > min_price and list_price[n - 1] <= min_price and my_price == list_price[n] and list_price[n] < max_price:
+                                                res1 = int(list_price[n + 1]) - 1
+                                                print(res1)
+                                                r += 1
+                                                try:
+                                                    url = f'https://market.csgo.com/api/v2/set-price?key={acc_key}&item_id={item_id}&price={res1}&cur={cur}'
+                                                    response = requests.get(url, timeout=10)
+                                                    data = response.json()
+                                                    # print(data)
+                                                    break
+                                                except:
+                                                    break
+                                            elif list_price[n] > min_price and list_price[n - 1] <= min_price and my_price != list_price[n] and list_price[n] < max_price:
+                                                res1 = int(list_price[n]) - 1
+                                                print(res1)
+                                                r += 1
+                                                try:
+                                                    url = f'https://market.csgo.com/api/v2/set-price?key={acc_key}&item_id={item_id}&price={res1}&cur={cur}'
+                                                    response = requests.get(url, timeout=10)
+                                                    data = response.json()
+                                                    break
+                                                except:
+                                                    break
+                                if r == 0 and my_price != max_price:
+                                    try:
+                                        url = f'https://market.csgo.com/api/v2/set-price?key={acc_key}&item_id={item_id}&price={max_price}&cur={cur}'
+                                        response = requests.get(url, timeout=10)
+                                        data = response.json()
+                                        print(data)
+                                        # print("установили максимальную цену")
+                                        break
+                                    except:
+                                        break
+                                elif r == 0 and my_price == max_price:
+                                    # print('максимальная цена уже установлена')
+                                    break
+                    else:
+                        data = 'len = 0'
+                except:
+                    data = {'res':'Ops! Unexpected error'}
+
+    return render(request, 'one_cent.html', {'result': data})
+
+
+def mass_order(request):
+    res = open(f'sokrat.json', 'r', encoding="utf-8")
+    response = res.read()
+    json_object = json.loads(response)
+    acc_key = request.GET['key']
+    acc_skin_name = request.GET['skin_name']
+    acc_price_max = request.GET['price_max']
+
+    data = {"res": "key != key"}
+
+    for key, value in json_object.items():
+        for val in value:
+            if acc_key == val:
+                try:
+                    url = 'https://market.csgo.com/api/v2/search-item-by-hash-name?key=' + acc_key + '&hash_name=' + acc_skin_name
+                    response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                    search_item = response.json()
+
+                    if len(search_item['data']) >= 3:
+                        if int(search_item['data'][2]['price']) <= int(acc_price_max) * 1.11:
+                            data = f"Третяя цена ниже макисмальной"
+                        else:
+                            url = 'https://market.csgo.com/api/v2/set-order?key=' + acc_key + '&market_hash_name=' + acc_skin_name + '&count=1&price=' + str(
+                                acc_price_max)
+                            response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                            data = response.json()
+                    else:
+                        data = 'Количество предметов меньше 4 на продаже'
+                except:
+                    data = 'Ops! Unexpected error'
+
+    return render(request, 'mass_order.html', {'result': data})
+
+
+def order_buy(request):
+    res = open(f'sokrat.json', 'r', encoding="utf-8")
+    response = res.read()
+    json_object = json.loads(response)
+    acc_key = request.GET['key']
+    acc_skin_name = request.GET['skin_name']
+    acc_price_max = request.GET['price_max']
+
+    data = {'success': ''}
+    data['success'] = {"res": "key != key"}
+
+    for key, value in json_object.items():
+        for val in value:
+            if acc_key == val:
+                try:
+                    url = 'https://market.csgo.com/api/v2/search-item-by-hash-name?key=' + acc_key + '&hash_name=' + acc_skin_name
+                    response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                    data = response.json()
+
+                    if len(data['data']) >= 3:
+                        if int(data['data'][2]['price']) <= int(acc_price_max) * 1.11:
+                            data['success'] = 'too high price'
+                        else:
+                            if len(data['data']) >= 3:
+                                class_name1 = data['data'][0]['class']
+                                instance_name1 = data['data'][0]['instance']
+                                if int(data['data'][0]['price']) <= int(acc_price_max):
+                                    # моментальная покупка по ордеру
+                                    try:
+                                        url = 'https://market.csgo.com/api/ProcessOrder/' + str(class_name1) + '/' + str(
+                                            instance_name1) + '/' + str(acc_price_max) + '/?key=' + acc_key
+                                        response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                                        data1 = response.json()
+                                    except:
+                                        pass
+                                # здесь хранятся ордера
+                                try:
+                                    url = 'https://market.csgo.com/api/BuyOffers/' + str(class_name1) + '_' + str(
+                                        instance_name1) + '/?key=' + acc_key
+                                    print(url, 1)
+                                    response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                                    buy_offers1 = response.json()
+                                    best_offer = buy_offers1['best_offer']
+                                    my_count = buy_offers1['offers'][0]['my_count']
+                                    if int(my_count) == 0 and int(best_offer) <= int(acc_price_max):
+                                        print(1)
+                                        count = int(best_offer) + 1
+                                        url = 'https://market.csgo.com/api/ProcessOrder/' + str(class_name1) + '/' + str(
+                                            instance_name1) + '/' + str(
+                                            count) + '/?key=' + acc_key
+                                        response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                                        process_order1 = response.json()
+                                except:
+                                    pass
+
+                            if len(data['data']) >= 3:
+                                class_name2 = data['data'][1]['class']
+                                instance_name2 = data['data'][1]['instance']
+                                # здесь хранятся ордера
+                                try:
+                                    url = 'https://market.csgo.com/api/BuyOffers/' + str(class_name2) + '_' + str(
+                                        instance_name2) + '/?key=' + acc_key
+                                    print(url, 2)
+                                    response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                                    buy_offers2 = response.json()
+                                    best_offer = buy_offers2['best_offer']
+                                    my_count = buy_offers2['offers'][0]['my_count']
+                                    if int(my_count) == 0 and int(best_offer) <= int(acc_price_max):
+                                        print(2)
+                                        count = int(best_offer) + 1
+                                        url = 'https://market.csgo.com/api/ProcessOrder/' + str(class_name2) + '/' + str(
+                                            instance_name2) + '/' + str(
+                                            count) + '/?key=' + acc_key
+                                        response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                                        process_order2 = response.json()
+                                except:
+                                    pass
+
+                            if len(data['data']) >= 3:
+                                class_name3 = data['data'][2]['class']
+                                instance_name3 = data['data'][2]['instance']
+                                # здесь хранятся ордера
+                                try:
+                                    url = 'https://market.csgo.com/api/BuyOffers/' + str(class_name3) + '_' + str(
+                                        instance_name3) + '/?key=' + acc_key
+                                    print(url, 3)
+                                    response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                                    buy_offers3 = response.json()
+                                    best_offer = buy_offers3['best_offer']
+                                    my_count = buy_offers3['offers'][0]['my_count']
+                                    if int(my_count) == 0 and int(best_offer) <= int(acc_price_max):
+                                        print(3)
+                                        count = int(best_offer) + 1
+                                        url = 'https://market.csgo.com/api/ProcessOrder/' + str(class_name3) + '/' + str(
+                                            instance_name3) + '/' + str(
+                                            count) + '/?key=' + acc_key
+                                        response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                                        process_order3 = response.json()
+                                except:
+                                    pass
+
+                            if len(data['data']) >= 4:
+                                print(4)
+                                class_name4 = data['data'][3]['class']
+                                instance_name4 = data['data'][3]['instance']
+                                # здесь хранятся ордера
+                                try:
+                                    url = 'https://market.csgo.com/api/BuyOffers/' + str(class_name4) + '_' + str(
+                                        instance_name4) + '/?key=' + acc_key
+                                    print(url, 4)
+                                    response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                                    buy_offers4 = response.json()
+                                    best_offer = buy_offers4['best_offer']
+                                    my_count = buy_offers4['offers'][0]['my_count']
+                                    if int(my_count) == 0 and int(best_offer) <= int(acc_price_max):
+                                        count = int(best_offer) + 1
+                                        url = 'https://market.csgo.com/api/ProcessOrder/' + str(class_name4) + '/' + str(
+                                            instance_name4) + '/' + str(
+                                            count) + '/?key=' + acc_key
+                                        response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                                        process_order4 = response.json()
+                                except:
+                                    pass
+                except:
+                    data = {'success': ''}
+                    data['success'] = {"res": "Ops! Unexpected error"}
+
+    return render(request, 'order_buy.html', {'result': data['success'], 'acc_price_max': acc_price_max})
+
+
 def home(request):
     username = None
     if request.user.is_authenticated and request.user.first_name:
