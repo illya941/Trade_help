@@ -34,6 +34,7 @@ urlpatterns = [
     path('json_page/', views.json_page, name="json_page"),
     path('purchase/', views.purchase, name="purchase"),
     path('acc/', views.one_ac, name="acc"),
+    path('online', views.online, name="online"),
 
     #path('set_prices/', views.set_prices, name="set_prices"),
     #path('set_prices_res1/', views.set_prices_res1, name="set_prices_res1"),

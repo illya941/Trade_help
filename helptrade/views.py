@@ -16,6 +16,23 @@ def start(request):
     return render(request, 'start.html')
 
 
+def online(request):
+    res = open(f'sokrat.json', 'r', encoding="utf-8")
+    response = res.read()
+    json_object = json.loads(response)
+    acc_key = request.GET['key']
+
+    data = {"res": "key != key"}
+
+    for key, value in json_object.items():
+        for val in value:
+            if acc_key == val:
+                url = 'https://market.csgo.com/api/v2/ping?key=' + acc_key
+                response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+                data = response.json()
+    return render(request, 'online.html', {'result': data})
+
+
 def home(request):
     username = None
     if request.user.is_authenticated and request.user.first_name:
